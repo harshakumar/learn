@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Log — HarshaKumar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F3EC;
+    --ink:#211D18;
+    --muted:#6B6459;
+    --pine:#2F5233;
+    --leather:#8B6F47;
+    --line:#DAD5C8;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Inter",-apple-system,Segoe UI,sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:4rem 1.5rem 6rem}
+  header{margin-bottom:3.5rem}
+  .kicker{
+    font-family:"Inter",sans-serif;
+    font-size:0.8rem;
+    color:var(--leather);
+    letter-spacing:0.02em;
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-family:"Source Serif 4",Georgia,serif;
+    font-weight:600;
+    font-size:2.6rem;
+    line-height:1.1;
+    margin:0 0 0.9rem;
+  }
+  header p{
+    max-width:46ch;
+    color:var(--muted);
+    font-size:1.02rem;
+    margin:0;
+  }
+  section{margin-top:3rem}
+  .section-title{
+    display:flex;
+    align-items:baseline;
+    gap:0.9rem;
+    margin-bottom:0.3rem;
+  }
+  .section-title h2{
+    font-family:"Source Serif 4",Georgia,serif;
+    font-weight:600;
+    font-size:1.3rem;
+    margin:0;
+    white-space:nowrap;
+  }
+  .section-title .rule{
+    flex:1;
+    border-top:1px solid var(--line);
+    transform:translateY(-4px);
+  }
+  ul{list-style:none;margin:1rem 0 0;padding:0}
+  li{border-bottom:1px solid var(--line)}
+  li a{
+    display:flex;
+    align-items:baseline;
+    gap:0.75rem;
+    padding:0.85rem 0.1rem;
+    text-decoration:none;
+    color:var(--ink);
+    border-radius:4px;
+  }
+  li a:focus-visible{
+    outline:2px solid var(--pine);
+    outline-offset:2px;
+  }
+  .doc-name{
+    font-weight:500;
+    white-space:nowrap;
+  }
+  .leader{
+    flex:1;
+    border-bottom:1px dotted var(--line);
+    transform:translateY(-0.35rem);
+  }
+  .doc-note{
+    color:var(--muted);
+    font-size:0.9rem;
+    text-align:right;
+    max-width:42%;
+  }
+  li a:hover .doc-name{color:var(--pine)}
+  li a:hover .leader{border-bottom-color:var(--pine)}
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.85rem;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:0.5rem;
+  }
+  footer a{color:var(--leather)}
+  @media (max-width:560px){
+    h1{font-size:2rem}
+    li a{flex-wrap:wrap}
+    .doc-note{max-width:100%;text-align:left;order:3;flex-basis:100%}
+    .leader{display:none}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    li a{transition:color 0.15s ease}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">Personal archive</p>
+    <h1>Learning Log</h1>
+    <p>A running index of study notes, deployment labs, interview prep, and the odd note to self — kept here as I work through them.</p>
+  </header>
+
+  <section>
+    <div class="section-title"><h2>Technical mastery</h2><span class="rule"></span></div>
+    <ul>
+      <li><a href="azure-docker-k8s-lab.html"><span class="doc-name">Azure Docker &amp; Kubernetes Lab</span><span class="leader"></span><span class="doc-note">2-hour hands-on deployment lab</span></a></li>
+      <li><a href="spring-boot-mastery-2026.html"><span class="doc-name">Spring Boot Mastery 2026</span><span class="leader"></span><span class="doc-note">Core notes, updated for this year</span></a></li>
+      <li><a href="spring-boot-mastery-mdn-style.html"><span class="doc-name">Spring Boot Mastery — MDN style</span><span class="leader"></span><span class="doc-note">Reference-style rewrite</span></a></li>
+      <li><a href="modern-java-mastery-mdn.html"><span class="doc-name">Modern Java Mastery — MDN style</span><span class="leader"></span><span class="doc-note">Reference-style rewrite</span></a></li>
+      <li><a href="modern-java-mastery%20(1).html"><span class="doc-name">Modern Java Mastery (draft)</span><span class="leader"></span><span class="doc-note">Working notes, in progress</span></a></li>
+      <li><a href="modern-python-mastery-uk-mdn.html"><span class="doc-name">Modern Python Mastery UK — MDN style</span><span class="leader"></span><span class="doc-note">Reference-style rewrite</span></a></li>
+      <li><a href="modern-python-mastery-uk%20(1).html"><span class="doc-name">Modern Python Mastery UK (draft)</span><span class="leader"></span><span class="doc-note">Working notes, in progress</span></a></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-title"><h2>Interview &amp; career prep</h2><span class="rule"></span></div>
+    <ul>
+      <li><a href="java-architect-mock-interview.html"><span class="doc-name">Java Architect Mock Interview</span><span class="leader"></span><span class="doc-note">Full mock transcript</span></a></li>
+      <li><a href="interview-prep-fullstack-java.html"><span class="doc-name">Interview Prep — Full-Stack Java</span><span class="leader"></span><span class="doc-note">First-round question bank</span></a></li>
+      <li><a href="interview-prep-round2-core-technical.html"><span class="doc-name">Interview Prep — Round 2, Core Technical</span><span class="leader"></span><span class="doc-note">Deeper technical round</span></a></li>
+      <li><a href="architect-communication-sprint.html"><span class="doc-name">Architect Communication Sprint</span><span class="leader"></span><span class="doc-note">Explaining decisions at architect level</span></a></li>
+      <li><a href="recruiter_call_answers.html"><span class="doc-name">Recruiter Call Answers</span><span class="leader"></span><span class="doc-note">Prepared responses for screening calls</span></a></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-title"><h2>Communication &amp; growth</h2><span class="rule"></span></div>
+    <ul>
+      <li><a href="british-english-30-day-plan.html"><span class="doc-name">British English — 30 Day Plan</span><span class="leader"></span><span class="doc-note">Pronunciation &amp; fluency coaching</span></a></li>
+      <li><a href="leadership-voice-training.html"><span class="doc-name">Leadership Voice Training</span><span class="leader"></span><span class="doc-note">Presence &amp; delivery practice</span></a></li>
+      <li><a href="daily-drive-motivation.html"><span class="doc-name">Daily Drive Motivation</span><span class="leader"></span><span class="doc-note">Short notes for the commute</span></a></li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>Last updated manually — edit this file when a new page is added.</span>
+    <a href="https://github.com/">View source on GitHub</a>
+  </footer>
+
+</div>
+</body>
+</html>
