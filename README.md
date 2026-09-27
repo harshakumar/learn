@@ -1,1 +1,1 @@
-# learn
+All Learnings, Miscellaneous details
