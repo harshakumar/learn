@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Java → Docker → Kubernetes on Azure: 2-Hour Lab</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1a1a1a;
+    --muted: #5a5a5a;
+    --code-bg: #f4f4f6;
+    --border: #e2e2e6;
+    --accent: #2563eb;
+  }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.65;
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+  }
+  h1 { font-size: 2rem; border-bottom: 3px solid var(--accent); padding-bottom: 0.5rem; }
+  h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; color: var(--accent); }
+  h3 { font-size: 1.1rem; margin-top: 1.8rem; }
+  p, li { font-size: 0.98rem; }
+  code {
+    background: var(--code-bg);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.88em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  pre code { background: none; padding: 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+    font-size: 0.92rem;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.7rem;
+    text-align: left;
+  }
+  th { background: var(--code-bg); }
+  blockquote {
+    border-left: 4px solid var(--accent);
+    margin: 1rem 0;
+    padding: 0.3rem 1rem;
+    color: var(--muted);
+    background: var(--code-bg);
+  }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1 id="java-docker-kubernetes-on-azure-2-hour-deployment-lab">Java → Docker → Kubernetes on Azure: 2-Hour Deployment Lab</h1>
+<p><strong>Build it → deploy it → access it → break it → troubleshoot it → understand it → clean it up.</strong></p>
+<p>You already know Java/Spring/Docker basics. This lab skips app development entirely and focuses purely on the deployment pipeline, using a pre-built <code>sample-app.jar</code> (Spring Boot, exposes <code>GET /hello</code> on port 8080).</p>
+<hr />
+<h2 id="architecture-where-were-going">Architecture (where we're going)</h2>
+<div class="codehilite"><pre><span></span><code>Internet
+   |
+Azure Public IP + NSG (inbound rules)
+   |
+Azure VM (Ubuntu)
+   |
+k3s (lightweight Kubernetes)
+   |
+Kubernetes Service (NodePort)
+   |
+Deployment (ReplicaSet)
+   |
+Pod
+   |
+Docker Container
+   |
+Java Spring Boot app (port 8080)
+</code></pre></div>
+
+<p>Registry path for getting the image onto the VM:</p>
+<div class="codehilite"><pre><span></span><code><span class="kr">Local</span><span class="w"> </span><span class="n">machine</span><span class="w"> </span><span class="o">--</span><span class="n">docker</span><span class="w"> </span><span class="kr">build</span><span class="o">--&gt;</span><span class="w"> </span><span class="n">Image</span><span class="w"> </span><span class="o">--</span><span class="n">docker</span><span class="w"> </span><span class="n">push</span><span class="o">--&gt;</span><span class="w"> </span><span class="n">Azure</span><span class="w"> </span><span class="n">Container</span><span class="w"> </span><span class="n">Registry</span><span class="w"> </span><span class="p">(</span><span class="n">ACR</span><span class="p">)</span>
+<span class="n">Azure</span><span class="w"> </span><span class="n">VM</span><span class="w"> </span><span class="o">--</span><span class="n">docker</span><span class="o">/</span><span class="n">k3s</span><span class="w"> </span><span class="nf">pull</span><span class="o">--&gt;</span><span class="w"> </span><span class="n">ACR</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">runs</span><span class="w"> </span><span class="n">locally</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">VM</span>
+</code></pre></div>
+
+<hr />
+<h2 id="timeline-120-min">Timeline (120 min)</h2>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Block</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0–10</td>
+<td>Architecture overview (this doc)</td>
+</tr>
+<tr>
+<td>10–25</td>
+<td>Dockerfile + build image</td>
+</tr>
+<tr>
+<td>25–35</td>
+<td>Run container locally</td>
+</tr>
+<tr>
+<td>35–60</td>
+<td>Create Azure VM, SSH in, install Docker</td>
+</tr>
+<tr>
+<td>60–75</td>
+<td>Push image to ACR, pull onto VM</td>
+</tr>
+<tr>
+<td>75–90</td>
+<td>Run container directly on VM (pre-Kubernetes)</td>
+</tr>
+<tr>
+<td>90–110</td>
+<td>Install k3s, Deployment + Service</td>
+</tr>
+<tr>
+<td>110–115</td>
+<td>Test end-to-end, trace the request</td>
+</tr>
+<tr>
+<td>115–120</td>
+<td>Troubleshooting drill + cleanup</td>
+</tr>
+</tbody>
+</table>
+<p>Cost/safety warning: a B1s VM + ACR is a few pence/cents per hour, but <strong>delete the resource group at the end</strong> (Part 12). Never leave port 8080/6443 open longer than needed, and never treat this NSG/VM setup as production-ready (no TLS, no auth, no hardening).</p>
+<hr />
+<h2 id="part-1-dockerfile">PART 1 — Dockerfile</h2>
+<p>Expected layout:</p>
+<div class="codehilite"><pre><span></span><code>sample-app/
+ ├── sample-app.jar
+ └── Dockerfile
+</code></pre></div>
+
+<p><strong>STEP 1 — Write the Dockerfile</strong></p>
+<p>Goal: package the JAR into a runnable image.
+Why: Docker gives a portable, identical runtime everywhere (laptop, VM, cluster).</p>
+<div class="codehilite"><pre><span></span><code><span class="c"># Dockerfile</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">eclipse-temurin:17-jre-jammy</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
+<span class="k">COPY</span><span class="w"> </span>sample-app.jar<span class="w"> </span>app.jar
+<span class="k">EXPOSE</span><span class="w"> </span><span class="s">8080</span>
+<span class="k">ENTRYPOINT</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;java&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-jar&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;app.jar&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Line by line:
+- <code>FROM eclipse-temurin:17-jre-jammy</code> — small JRE-only base image (no JDK bloat needed to <em>run</em> a JAR). Match this to whatever Java version your JAR was built with.
+- <code>WORKDIR /app</code> — creates/enters <code>/app</code> inside the image; later paths are relative to it.
+- <code>COPY sample-app.jar app.jar</code> — copies your JAR from build context into the image, renamed for a stable entrypoint path.
+- <code>EXPOSE 8080</code> — documentation only (doesn't actually publish the port; <code>-p</code> at <code>docker run</code> does that).
+- <code>ENTRYPOINT [...]</code> — the command that runs when the container starts.</p>
+<p>Checkpoint: <code>Dockerfile</code> and <code>sample-app.jar</code> sit side by side.</p>
+<hr />
+<h2 id="part-2-build-run-locally">PART 2 — Build &amp; Run Locally</h2>
+<p><strong>STEP 2 — Build the image</strong> [LOCAL MACHINE]</p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>sample-java-app:1.0<span class="w"> </span>.
+docker<span class="w"> </span>images
+</code></pre></div>
+
+<p>What happened: Docker read the Dockerfile, layered each instruction into an image, tagged it <code>sample-java-app:1.0</code>.
+Common problem: "no such file" → you're not in the <code>sample-app/</code> directory.</p>
+<p><strong>STEP 3 — Run it</strong> [LOCAL MACHINE]</p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span>--name<span class="w"> </span>sample-app-local<span class="w"> </span>sample-java-app:1.0
+docker<span class="w"> </span>ps
+curl<span class="w"> </span>http://localhost:8080/hello
+</code></pre></div>
+
+<p>What happened: Docker created a container from the image, mapped host port 8080 → container port 8080.
+Checkpoint: curl returns a response.</p>
+<p><strong>STEP 4 — Stop/remove</strong> [LOCAL MACHINE]</p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>stop<span class="w"> </span>sample-app-local
+docker<span class="w"> </span>rm<span class="w"> </span>sample-app-local
+</code></pre></div>
+
+<p>You've now proven: <code>JAR → Dockerfile → Image → Container</code> works. Everything after this is about getting that same image running on Azure.</p>
+<hr />
+<h2 id="part-3-create-the-azure-vm-portal-first">PART 3 — Create the Azure VM (Portal-first)</h2>
+<p><strong>STEP 5 — Create VM via Azure Portal</strong></p>
+<p>Goal: a small Ubuntu VM to act as our "server."</p>
+<p>Portal Action:
+1. Portal → <strong>Create a resource → Virtual Machine</strong>
+2. <strong>Resource Group</strong>: create new, e.g. <code>rg-k8s-lab</code> — a logical container so you can delete everything in one action later.
+3. <strong>Region</strong>: pick nearest to you (affects latency + cost).
+4. <strong>VM name</strong>: <code>vm-k8s-lab</code>
+5. <strong>Image</strong>: Ubuntu Server 22.04 LTS — free, well-documented, k3s-friendly.
+6. <strong>Size</strong>: <code>Standard_B1s</code> or <code>B2s</code> (B2s recommended — k3s + Docker is tight on 1GB RAM). Burstable/cheap tier, fine for a lab.
+7. <strong>Authentication</strong>: SSH public key (generate new key pair, download the <code>.pem</code>).
+8. <strong>Inbound port rules</strong>: allow <strong>SSH (22)</strong> now; we'll add 8080 and 6443 later once we know we need them — least-privilege by default.
+9. <strong>Disks</strong>: default Standard SSD is fine.
+10. Review + Create.</p>
+<p>Why each piece exists:
+- <strong>Resource Group</strong> = a folder for billing/lifecycle — delete it, everything inside dies with it.
+- <strong>NSG (Network Security Group)</strong> = a firewall attached to the VM's network interface; nothing reaches the VM unless a rule allows it.
+- <strong>Public IP</strong> = the address the internet uses to reach your VM.</p>
+<p>Equivalent CLI (optional):</p>
+<div class="codehilite"><pre><span></span><code>az<span class="w"> </span>group<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>rg-k8s-lab<span class="w"> </span>--location<span class="w"> </span>uksouth
+az<span class="w"> </span>vm<span class="w"> </span>create<span class="w"> </span>--resource-group<span class="w"> </span>rg-k8s-lab<span class="w"> </span>--name<span class="w"> </span>vm-k8s-lab<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--image<span class="w"> </span>Ubuntu2204<span class="w"> </span>--size<span class="w"> </span>Standard_B2s<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--admin-username<span class="w"> </span>azureuser<span class="w"> </span>--generate-ssh-keys
+</code></pre></div>
+
+<p>Checkpoint: deployment succeeds, note the <strong>Public IP</strong> shown on the VM overview page.</p>
+<p><strong>STEP 6 — SSH in</strong> [LOCAL MACHINE]</p>
+<div class="codehilite"><pre><span></span><code>chmod<span class="w"> </span><span class="m">400</span><span class="w"> </span>vm-k8s-lab_key.pem
+ssh<span class="w"> </span>-i<span class="w"> </span>vm-k8s-lab_key.pem<span class="w"> </span>azureuser@&lt;AZURE_PUBLIC_IP&gt;
+</code></pre></div>
+
+<p>[AZURE VM]</p>
+<div class="codehilite"><pre><span></span><code>uname<span class="w"> </span>-a
+lsb_release<span class="w"> </span>-a
+</code></pre></div>
+
+<p>What happened: your terminal is now a shell running <em>on</em> the VM, not your laptop. Every command from here labeled <code>[AZURE VM]</code> runs there.
+Common problem: "permission denied (publickey)" → wrong key file or wrong username (<code>azureuser</code> unless you changed it).</p>
+<hr />
+<h2 id="part-4-docker-on-the-vm">PART 4 — Docker on the VM</h2>
+<p><strong>STEP 7 — Install Docker</strong> [AZURE VM]</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>apt-get<span class="w"> </span>update
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>ca-certificates<span class="w"> </span>curl<span class="w"> </span>gnupg
+sudo<span class="w"> </span>install<span class="w"> </span>-m<span class="w"> </span><span class="m">0755</span><span class="w"> </span>-d<span class="w"> </span>/etc/apt/keyrings
+curl<span class="w"> </span>-fsSL<span class="w"> </span>https://download.docker.com/linux/ubuntu/gpg<span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>gpg<span class="w"> </span>--dearmor<span class="w"> </span>-o<span class="w"> </span>/etc/apt/keyrings/docker.gpg
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;deb [arch=</span><span class="k">$(</span>dpkg<span class="w"> </span>--print-architecture<span class="k">)</span><span class="s2"> signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu </span><span class="k">$(</span>.<span class="w"> </span>/etc/os-release<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">$VERSION_CODENAME</span><span class="k">)</span><span class="s2"> stable&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>tee<span class="w"> </span>/etc/apt/sources.list.d/docker.list<span class="w"> </span>&gt;<span class="w"> </span>/dev/null
+sudo<span class="w"> </span>apt-get<span class="w"> </span>update
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>docker-ce<span class="w"> </span>docker-ce-cli<span class="w"> </span>containerd.io
+sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
+newgrp<span class="w"> </span>docker
+</code></pre></div>
+
+<p><strong>STEP 8 — Verify</strong> [AZURE VM]</p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>--version
+docker<span class="w"> </span>run<span class="w"> </span>hello-world
+</code></pre></div>
+
+<ul>
+<li><strong>Docker daemon</strong> = background service managing images/containers.</li>
+<li><strong>Docker CLI</strong> = the <code>docker</code> command you type, which talks to the daemon.</li>
+<li><strong>Registry</strong> = a place images are stored/pulled from (Docker Hub, ACR, etc.) — needed next, since your laptop's local image doesn't magically exist on the VM.</li>
+</ul>
+<p>Checkpoint: <code>hello-world</code> prints its "Hello from Docker!" message.</p>
+<hr />
+<h2 id="part-5-get-the-image-onto-the-vm-via-azure-container-registry">PART 5 — Get the Image onto the VM (via Azure Container Registry)</h2>
+<p>The VM cannot see the image sitting on your laptop's Docker daemon — it needs to pull it from somewhere reachable. ACR is the simplest realistic option here.</p>
+<p><strong>STEP 9 — Create ACR</strong> [LOCAL MACHINE, Portal or CLI]</p>
+<div class="codehilite"><pre><span></span><code>az<span class="w"> </span>acr<span class="w"> </span>create<span class="w"> </span>--resource-group<span class="w"> </span>rg-k8s-lab<span class="w"> </span>--name<span class="w"> </span>&lt;REGISTRY_NAME&gt;<span class="w"> </span>--sku<span class="w"> </span>Basic
+az<span class="w"> </span>acr<span class="w"> </span>login<span class="w"> </span>--name<span class="w"> </span>&lt;REGISTRY_NAME&gt;
+</code></pre></div>
+
+<p>(Portal equivalent: Create a resource → Container Registry → same resource group → Basic SKU.)</p>
+<p><strong>STEP 10 — Push the image</strong> [LOCAL MACHINE]</p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>tag<span class="w"> </span>sample-java-app:1.0<span class="w"> </span>&lt;REGISTRY_NAME&gt;.azurecr.io/sample-java-app:1.0
+docker<span class="w"> </span>push<span class="w"> </span>&lt;REGISTRY_NAME&gt;.azurecr.io/sample-java-app:1.0
+</code></pre></div>
+
+<p><strong>STEP 11 — Let the VM pull from ACR</strong> [AZURE VM]</p>
+<div class="codehilite"><pre><span></span><code>az<span class="w"> </span>acr<span class="w"> </span>login<span class="w"> </span>--name<span class="w"> </span>&lt;REGISTRY_NAME&gt;<span class="w">   </span><span class="c1"># requires az cli on VM, or use --username/--password with docker login</span>
+docker<span class="w"> </span>login<span class="w"> </span>&lt;REGISTRY_NAME&gt;.azurecr.io<span class="w"> </span>-u<span class="w"> </span>&lt;USERNAME&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;PASSWORD&gt;
+docker<span class="w"> </span>pull<span class="w"> </span>&lt;REGISTRY_NAME&gt;.azurecr.io/sample-java-app:1.0
+</code></pre></div>
+
+<p>(Simplest auth path for a lab: Portal → your ACR → <strong>Access keys</strong> → enable Admin user → use that username/password with <code>docker login</code>.)</p>
+<p>Flow recap:</p>
+<div class="codehilite"><pre><span></span><code><span class="kr">Local</span><span class="w"> </span><span class="kr">build</span><span class="w"> </span><span class="o">--</span><span class="n">push</span><span class="o">--&gt;</span><span class="w"> </span><span class="n">ACR</span><span class="w"> </span><span class="o">--</span><span class="nf">pull</span><span class="o">--&gt;</span><span class="w"> </span><span class="n">VM</span>
+</code></pre></div>
+
+<p>Checkpoint: <code>docker images</code> on the VM shows the image.</p>
+<hr />
+<h2 id="part-6-run-directly-on-the-vm-pre-kubernetes">PART 6 — Run Directly on the VM (pre-Kubernetes)</h2>
+<p><strong>STEP 12</strong> [AZURE VM]</p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span>--name<span class="w"> </span>sample-app<span class="w"> </span>&lt;REGISTRY_NAME&gt;.azurecr.io/sample-java-app:1.0
+</code></pre></div>
+
+<p>Now add an NSG inbound rule for port <strong>8080</strong> (Portal → VM → Networking → Add inbound port rule → 8080, TCP).</p>
+<p><strong>STEP 13 — Test from your laptop</strong> [LOCAL MACHINE]</p>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://&lt;AZURE_PUBLIC_IP&gt;:8080/hello
+</code></pre></div>
+
+<p>Trace:</p>
+<div class="codehilite"><pre><span></span><code>Internet → Azure Public IP → NSG (allows 8080) → VM NIC → Docker container (port 8080) → Java app
+</code></pre></div>
+
+<p>This is deliberately the <em>pre-Kubernetes</em> baseline — one container, no self-healing, no scaling. Kubernetes exists to solve what this setup lacks.</p>
+<p>Cleanup before moving on: <code>docker stop sample-app &amp;&amp; docker rm sample-app</code> (Kubernetes will run it instead).</p>
+<hr />
+<h2 id="part-7-why-kubernetes">PART 7 — Why Kubernetes?</h2>
+<p><code>docker run</code> gives you exactly one container with no supervision — if it crashes, it stays dead; to scale, you SSH in and run more <code>docker run</code> commands by hand; there's no built-in load balancing or self-healing.</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>What it is</th>
+<th>Where it appears here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cluster</td>
+<td>The whole set of machines running Kubernetes</td>
+<td>Our single VM (acting as the whole cluster)</td>
+</tr>
+<tr>
+<td>Node</td>
+<td>One machine in the cluster</td>
+<td>The VM itself</td>
+</tr>
+<tr>
+<td>Pod</td>
+<td>Smallest deployable unit; wraps ≥1 container</td>
+<td>Wraps your <code>sample-java-app</code> container</td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td>Declares "run N replicas of this Pod, keep them healthy"</td>
+<td><code>deployment.yaml</code> below</td>
+</tr>
+<tr>
+<td>ReplicaSet</td>
+<td>Created by the Deployment; maintains replica count</td>
+<td>Managed automatically</td>
+</tr>
+<tr>
+<td>Service</td>
+<td>Stable network endpoint routing to Pods</td>
+<td><code>service.yaml</code> below</td>
+</tr>
+<tr>
+<td>Namespace</td>
+<td>Logical partition of a cluster</td>
+<td>We'll use <code>default</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-8-install-k3s">PART 8 — Install k3s</h2>
+<p><strong>STEP 14</strong> [AZURE VM]</p>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-sfL<span class="w"> </span>https://get.k3s.io<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh<span class="w"> </span>-
+sudo<span class="w"> </span>k3s<span class="w"> </span>kubectl<span class="w"> </span>get<span class="w"> </span>nodes
+</code></pre></div>
+
+<p>Why k3s: it's a single ~50MB binary bundling a full Kubernetes control plane + kubelet, purpose-built for small/edge/single-node setups like this VM — installing full upstream Kubernetes (kubeadm, etc.) is overkill for a 2-hour lab.</p>
+<p>Make <code>kubectl</code> easier to use:</p>
+<div class="codehilite"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>~/.kube
+sudo<span class="w"> </span>cp<span class="w"> </span>/etc/rancher/k3s/k3s.yaml<span class="w"> </span>~/.kube/config
+sudo<span class="w"> </span>chown<span class="w"> </span><span class="nv">$USER</span><span class="w"> </span>~/.kube/config
+<span class="nb">alias</span><span class="w"> </span><span class="nv">kubectl</span><span class="o">=</span><span class="s1">&#39;k3s kubectl&#39;</span><span class="w">   </span><span class="c1"># or: sudo cp /usr/local/bin/k3s /usr/local/bin/kubectl</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>nodes
+</code></pre></div>
+
+<p>Expected output: one node, <code>STATUS: Ready</code>. This confirms the control plane and kubelet are both healthy and talking to each other.</p>
+<hr />
+<h2 id="part-9-kubernetes-deployment">PART 9 — Kubernetes Deployment</h2>
+<p>Because k3s runs on the VM, it can pull straight from the same ACR — you still need to authenticate it (a <code>Secret</code>), since k3s has no memory of your earlier <code>docker login</code>.</p>
+<p><strong>STEP 15 — Create the ACR pull secret</strong> [AZURE VM]</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>docker-registry<span class="w"> </span>acr-secret<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--docker-server<span class="o">=</span>&lt;REGISTRY_NAME&gt;.azurecr.io<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--docker-username<span class="o">=</span>&lt;USERNAME&gt;<span class="w"> </span>--docker-password<span class="o">=</span>&lt;PASSWORD&gt;
+</code></pre></div>
+
+<p><strong>STEP 16 — <code>deployment.yaml</code></strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-java-app</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-java-app</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-java-app</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">imagePullSecrets</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">acr-secret</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-java-app</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;REGISTRY_NAME&gt;.azurecr.io/sample-java-app:1.0</span>
+<span class="w">          </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+</code></pre></div>
+
+<ul>
+<li><code>replicas: 2</code> — Kubernetes keeps 2 Pods running; kill one and it's replaced automatically.</li>
+<li><code>selector</code>/<code>labels</code> — how the Deployment finds/owns "its" Pods.</li>
+<li><code>imagePullSecrets</code> — lets the kubelet authenticate to ACR.</li>
+<li><code>containerPort: 8080</code> — documents the port the app listens on inside the Pod.</li>
+</ul>
+<p><strong>STEP 17 — Apply &amp; verify</strong> [AZURE VM]</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>deployment.yaml
+kubectl<span class="w"> </span>get<span class="w"> </span>deployments
+kubectl<span class="w"> </span>get<span class="w"> </span>pods
+kubectl<span class="w"> </span>describe<span class="w"> </span>pod<span class="w"> </span>&lt;pod-name&gt;
+</code></pre></div>
+
+<p>What happened: the Deployment controller created a ReplicaSet, which created 2 Pods; the kubelet on the node pulled the image and started the containers.
+Checkpoint: both pods show <code>STATUS: Running</code>.</p>
+<hr />
+<h2 id="part-10-kubernetes-service">PART 10 — Kubernetes Service</h2>
+<p>A Pod's IP is ephemeral (it changes if the Pod restarts) — a Service gives a stable way in.</p>
+<p><strong>STEP 18 — <code>service.yaml</code></strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-java-app-svc</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NodePort</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-java-app</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+<span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+<span class="w">      </span><span class="nt">nodePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30080</span>
+</code></pre></div>
+
+<p><code>NodePort</code> exposes the app on <code>&lt;node-ip&gt;:30080</code> — simplest option for a single-node lab (no cloud LoadBalancer needed).</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>service.yaml
+kubectl<span class="w"> </span>get<span class="w"> </span>services
+</code></pre></div>
+
+<p>Open NSG inbound port <strong>30080</strong> (same as Step 12's process).</p>
+<p>Flow: <code>Pod → Service (routes by label selector, load-balances across replicas) → external access via NodePort</code>.</p>
+<p><strong>STEP 19 — Test</strong> [LOCAL MACHINE]</p>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://&lt;AZURE_PUBLIC_IP&gt;:30080/hello
+</code></pre></div>
+
+<hr />
+<h2 id="part-11-trace-the-full-request">PART 11 — Trace the Full Request</h2>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://&lt;AZURE_PUBLIC_IP&gt;:30080/hello
+</code></pre></div>
+
+<ol>
+<li><strong>Client → Azure Public IP</strong> — DNS/IP routing gets the packet to Azure's edge.</li>
+<li><strong>NSG</strong> — checks the inbound rule allowing TCP 30080; drops it otherwise.</li>
+<li><strong>Azure VM (NIC)</strong> — packet arrives at the node's network interface.</li>
+<li><strong>kube-proxy</strong> (part of k3s) — intercepts traffic to NodePort 30080, rewrites it toward one of the Service's healthy Pod IPs (round-robin across your 2 replicas).</li>
+<li><strong>Service → Pod</strong> — traffic reaches the selected Pod's IP:8080.</li>
+<li><strong>Pod → Container</strong> — the Pod's network namespace hands the packet to the container process.</li>
+<li><strong>Java/Spring Boot</strong> — Tomcat (embedded) accepts the HTTP request, routes it to your <code>/hello</code> controller.</li>
+<li><strong>Response</strong> — travels back the same path in reverse.</li>
+</ol>
+<hr />
+<h2 id="part-12-troubleshooting-drill">PART 12 — Troubleshooting Drill</h2>
+<p><strong>Problem 1: Pod not running</strong></p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods
+kubectl<span class="w"> </span>describe<span class="w"> </span>pod<span class="w"> </span>&lt;pod-name&gt;
+kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod-name&gt;
+</code></pre></div>
+
+<p><code>describe</code> shows Events (e.g. <code>ImagePullBackOff</code>, <code>CrashLoopBackOff</code>); <code>logs</code> shows app-level stdout/stderr.</p>
+<p><strong>Problem 2: App unreachable despite Running pods</strong></p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>svc
+kubectl<span class="w"> </span>describe<span class="w"> </span>svc<span class="w"> </span>sample-java-app-svc
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-o<span class="w"> </span>wide
+</code></pre></div>
+
+<p>Check in order: does the Service's selector match the Pod's labels? Is the NSG rule actually present for the NodePort? Is anything else already bound to that port on the VM (<code>sudo ss -tulpn</code>)?</p>
+<p><strong>Problem 3: Image pull failure</strong></p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>describe<span class="w"> </span>pod<span class="w"> </span>&lt;pod-name&gt;<span class="w">   </span><span class="c1"># look for &quot;ImagePullBackOff&quot; / &quot;ErrImagePull&quot;</span>
+</code></pre></div>
+
+<p>Check: is <code>&lt;REGISTRY_NAME&gt;.azurecr.io/sample-java-app:1.0</code> spelled exactly right (typo'd tags are the #1 cause)? Is <code>acr-secret</code> referenced correctly in <code>imagePullSecrets</code>? Has the ACR admin password changed/rotated?</p>
+<hr />
+<h2 id="part-13-cheat-sheet">PART 13 — Cheat Sheet</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kubectl get nodes</code></td>
+<td>List cluster nodes and their status</td>
+</tr>
+<tr>
+<td><code>kubectl get pods</code></td>
+<td>List Pods and their current state</td>
+</tr>
+<tr>
+<td><code>kubectl get deployments</code></td>
+<td>List Deployments and replica health</td>
+</tr>
+<tr>
+<td><code>kubectl get services</code></td>
+<td>List Services and how they're exposed</td>
+</tr>
+<tr>
+<td><code>kubectl describe pod &lt;name&gt;</code></td>
+<td>Detailed Pod info + recent Events (best first debug step)</td>
+</tr>
+<tr>
+<td><code>kubectl logs &lt;name&gt;</code></td>
+<td>View a container's stdout/stderr</td>
+</tr>
+<tr>
+<td><code>kubectl apply -f &lt;file&gt;</code></td>
+<td>Create/update a resource from YAML</td>
+</tr>
+<tr>
+<td><code>kubectl delete -f &lt;file&gt;</code></td>
+<td>Remove a resource defined in YAML</td>
+</tr>
+<tr>
+<td><code>kubectl exec -it &lt;name&gt; -- sh</code></td>
+<td>Open a shell inside a running container</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-14-cleanup">PART 14 — Cleanup</h2>
+<p><strong>Kubernetes</strong> [AZURE VM]</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>delete<span class="w"> </span>-f<span class="w"> </span>service.yaml
+kubectl<span class="w"> </span>delete<span class="w"> </span>-f<span class="w"> </span>deployment.yaml
+</code></pre></div>
+
+<p><strong>Docker</strong> [AZURE VM / LOCAL]</p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>system<span class="w"> </span>prune<span class="w"> </span>-a<span class="w">   </span><span class="c1"># removes unused images/containers on both sides if desired</span>
+</code></pre></div>
+
+<p><strong>Azure — the important one</strong></p>
+<div class="codehilite"><pre><span></span><code>az<span class="w"> </span>group<span class="w"> </span>delete<span class="w"> </span>--name<span class="w"> </span>rg-k8s-lab<span class="w"> </span>--yes<span class="w"> </span>--no-wait
+</code></pre></div>
+
+<p>Deleting the resource group removes the VM, its disk, public IP, NSG, and the ACR together — the single action that stops all billing for this lab. Verify in the Portal that the resource group is actually gone, not just "deleting."</p>
+<hr />
+<h2 id="final-learning-outcomes">Final Learning Outcomes</h2>
+<p>You should now be able to explain, unprompted:
+1. What a Docker image vs. container is
+2. Why a registry (ACR) is necessary between laptop and VM
+3. What an Azure VM actually provisions (compute + NIC + public IP + NSG + disk)
+4. What problem Kubernetes solves that plain <code>docker run</code> doesn't
+5. Pod vs. Deployment vs. Service, and why each exists as a separate object
+6. How a NodePort Service routes external traffic to a Pod
+7. How to read <code>kubectl describe</code>/<code>logs</code> to diagnose a broken Pod
+8. How to fully tear down billed resources</p>
+<hr />
+<h2 id="can-i-explain-this-in-an-interview">Can I Explain This in an Interview?</h2>
+<p><strong>Q1: What's the difference between a Docker image and a container?</strong>
+An image is an immutable, layered filesystem + metadata; a container is a running (or stopped) instance of that image with its own writable layer and process namespace.</p>
+<p><strong>Q2: Why did you need a container registry instead of copying the image file directly?</strong>
+The Azure VM's Docker/kubelet daemon has no access to your laptop's local image store; a registry is the standard, repeatable way to distribute images across machines, and it's what Kubernetes' image-pull mechanism expects.</p>
+<p><strong>Q3: What does a Kubernetes Deployment actually manage?</strong>
+It manages a ReplicaSet, which in turn ensures the desired number of identical Pods are running; if a Pod dies, the ReplicaSet controller creates a replacement to reconcile actual state with desired state.</p>
+<p><strong>Q4: Why use a Service instead of hitting a Pod's IP directly?</strong>
+Pod IPs are ephemeral and change on restart/rescheduling; a Service provides a stable virtual IP/DNS name and load-balances across all matching Pods via label selectors.</p>
+<p><strong>Q5: What's the difference between NodePort, ClusterIP, and LoadBalancer Services?</strong>
+ClusterIP is internal-only; NodePort additionally exposes a static port on every node's IP (what we used, since there's no cloud load balancer on a bare VM); LoadBalancer provisions a cloud provider's external load balancer (used with AKS, not this setup).</p>
+<p><strong>Q6: Why k3s instead of full Kubernetes or AKS for this lab?</strong>
+k3s is a single lightweight binary suited to a single-node/edge scenario and installs in under a minute, letting the lab focus on core Kubernetes concepts rather than control-plane HA or AKS-specific tooling.</p>
+<p><strong>Q7: How would you debug a Pod stuck in <code>CrashLoopBackOff</code>?</strong>
+<code>kubectl logs &lt;pod&gt;</code> (add <code>--previous</code> if it already restarted) to see the app's exit reason, and <code>kubectl describe pod</code> for OOMKilled/Events; the root cause is almost always inside the container process itself, not Kubernetes.</p>
+<p><strong>Q8: What is an NSG and why is it necessary even though the app has its own port config?</strong>
+The NSG is a network-layer firewall at the Azure infrastructure level, entirely separate from anything the OS or app does; a port can be "listening" inside the VM and still be completely unreachable if the NSG doesn't allow it.</p>
+<p><strong>Q9: What would you change to make this production-appropriate?</strong>
+Move to AKS for a managed control plane and real LoadBalancer/Ingress support, add TLS, use a proper secrets manager instead of a plain <code>Secret</code> object, add CI/CD instead of manual <code>docker build</code>/<code>kubectl apply</code>, and add resource limits/requests and health probes.</p>
+<p><strong>Q10: Walk me through what happens end-to-end when a client hits your endpoint.</strong>
+(Use the Part 11 hop-by-hop trace: Public IP → NSG → VM NIC → kube-proxy/NodePort → Service → Pod → container → Spring Boot controller → response retraces the path.)</p>
+<hr />
+<p><em>Optional next steps (deliberately out of scope here): AKS, Helm, Ingress controllers, CI/CD pipelines, service mesh, Terraform.</em></p>
+</div>
+</body>
+</html>

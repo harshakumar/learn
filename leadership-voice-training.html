@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Leadership Voice — A Working Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14120E;
+    --bg-panel:#1D1A14;
+    --bg-panel-2:#242019;
+    --paper:#EDE6D3;
+    --paper-dim:#B7AF98;
+    --brass:#C89B4A;
+    --brass-dim:#8A6F3C;
+    --teal:#6E9484;
+    --rust:#9C5B47;
+    --hair:#3A3527;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--paper);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    line-height:1.15;
+    margin:0 0 0.5em 0;
+    color:var(--paper);
+  }
+  a{color:var(--brass);}
+  .wrap{max-width:760px; margin:0 auto; padding:0 28px;}
+
+  /* ---- top nav ---- */
+  nav.jump{
+    position:sticky; top:0; z-index:50;
+    background:rgba(20,18,14,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--hair);
+  }
+  nav.jump .wrap{
+    display:flex; gap:22px; overflow-x:auto;
+    padding-top:14px; padding-bottom:14px;
+    scrollbar-width:none;
+  }
+  nav.jump .wrap::-webkit-scrollbar{display:none;}
+  nav.jump a{
+    color:var(--paper-dim);
+    text-decoration:none;
+    font-size:13.5px;
+    white-space:nowrap;
+    border-bottom:1px solid transparent;
+    padding-bottom:3px;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  nav.jump a:hover{color:var(--brass); border-color:var(--brass-dim);}
+
+  /* ---- hero ---- */
+  header.hero{padding:76px 0 56px 0; border-bottom:1px solid var(--hair);}
+  header.hero .kicker{
+    color:var(--brass);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.02em;
+    margin-bottom:18px;
+  }
+  header.hero h1{
+    font-size:clamp(2.1rem, 5vw, 3.1rem);
+    max-width:11ch;
+  }
+  header.hero p.sub{
+    color:var(--paper-dim);
+    font-size:1.08rem;
+    max-width:52ch;
+    margin-top:18px;
+  }
+
+  section{padding:56px 0; border-bottom:1px solid var(--hair);}
+  section:last-of-type{border-bottom:none;}
+  .num{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--brass-dim);
+    font-size:13px;
+    margin-bottom:10px;
+  }
+  section h2{font-size:1.65rem; max-width:22ch;}
+  section > p.lead{color:var(--paper-dim); max-width:60ch; margin-top:14px; font-size:1.02rem;}
+
+  /* ---- principle cards ---- */
+  .principle{
+    margin-top:36px;
+    padding-left:20px;
+    border-left:2px solid var(--brass-dim);
+  }
+  .principle h3{font-size:1.2rem; margin-bottom:8px;}
+  .principle p{color:var(--paper-dim); max-width:58ch; margin:0;}
+
+  /* ---- before / after ---- */
+  .swap{
+    margin-top:18px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    background:var(--hair);
+    border:1px solid var(--hair);
+  }
+  @media (max-width:600px){ .swap{grid-template-columns:1fr;} }
+  .swap .cell{background:var(--bg-panel); padding:18px 20px;}
+  .swap .cell.weak{border-left:3px solid var(--rust);}
+  .swap .cell.strong{border-left:3px solid var(--teal);}
+  .swap .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:0.03em;
+    margin-bottom:8px;
+  }
+  .swap .cell.weak .tag{color:var(--rust);}
+  .swap .cell.strong .tag{color:var(--teal);}
+  .swap .cell p{margin:0; font-size:0.98rem;}
+  .swap .cell.weak p{color:var(--paper-dim); text-decoration:line-through; text-decoration-color:rgba(156,91,71,0.5);}
+  .swap .cell.strong p{color:var(--paper); font-weight:500;}
+
+  .scenario{margin-top:44px;}
+  .scenario:first-of-type{margin-top:32px;}
+  .scenario h3{font-size:1.05rem; color:var(--paper); font-family:'IBM Plex Sans',sans-serif; font-weight:600;}
+  .scenario .why{color:var(--paper-dim); font-size:0.92rem; margin-top:10px; max-width:58ch;}
+
+  /* ---- reveal drills ---- */
+  details.drill{
+    margin-top:16px;
+    background:var(--bg-panel);
+    border:1px solid var(--hair);
+    border-radius:var(--radius);
+    padding:16px 20px;
+  }
+  details.drill summary{
+    cursor:pointer;
+    font-weight:600;
+    color:var(--paper);
+    list-style:none;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+  }
+  details.drill summary::-webkit-details-marker{display:none;}
+  details.drill summary .plus{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--brass);
+    font-size:18px;
+    transition:transform .2s ease;
+    flex-shrink:0;
+  }
+  details.drill[open] summary .plus{transform:rotate(45deg);}
+  details.drill .body{margin-top:14px; color:var(--paper-dim); font-size:0.96rem;}
+  details.drill .body strong{color:var(--paper);}
+
+  /* ---- phrase table ---- */
+  table.phrases{width:100%; border-collapse:collapse; margin-top:24px;}
+  table.phrases th{
+    text-align:left;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--brass);
+    font-weight:500;
+    padding:0 14px 10px 0;
+    border-bottom:1px solid var(--hair);
+  }
+  table.phrases td{
+    padding:12px 14px 12px 0;
+    border-bottom:1px solid var(--hair);
+    vertical-align:top;
+    font-size:0.94rem;
+  }
+  table.phrases td.out{color:var(--paper-dim); text-decoration:line-through; text-decoration-color:rgba(156,91,71,0.4);}
+  table.phrases td.in{color:var(--paper); font-weight:500;}
+
+  /* ---- checklist ---- */
+  .checklist{margin-top:24px; display:flex; flex-direction:column; gap:0;}
+  .check-item{
+    display:flex; gap:14px; align-items:flex-start;
+    padding:14px 0;
+    border-bottom:1px solid var(--hair);
+    cursor:pointer;
+  }
+  .check-item:first-child{padding-top:0;}
+  .check-item .box{
+    width:16px; height:16px; margin-top:3px; flex-shrink:0;
+    border:1.5px solid var(--brass-dim);
+    border-radius:2px;
+    position:relative;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .check-item.done .box{background:var(--brass); border-color:var(--brass);}
+  .check-item.done .box::after{
+    content:"";
+    position:absolute; left:4px; top:1px;
+    width:4px; height:8px;
+    border:solid var(--bg);
+    border-width:0 2px 2px 0;
+    transform:rotate(40deg);
+  }
+  .check-item .txt{color:var(--paper-dim); font-size:0.96rem; transition:color .15s ease;}
+  .check-item.done .txt{color:var(--paper);}
+
+  footer{padding:48px 0 80px 0;}
+  footer p{color:var(--paper-dim); font-size:0.9rem; max-width:56ch;}
+  footer .mark{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--brass-dim);
+    font-size:12px;
+    margin-top:28px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="jump">
+  <div class="wrap">
+    <a href="#foundations">Foundations</a>
+    <a href="#framing">Framing</a>
+    <a href="#feedback">Feedback</a>
+    <a href="#decisions">Decisions</a>
+    <a href="#pressure">Under pressure</a>
+    <a href="#phrasebook">Phrasebook</a>
+    <a href="#practice">Practice</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">A WORKING MANUAL</div>
+    <h1>The Leadership Voice</h1>
+    <p class="sub">Leadership language isn't about sounding important. It's about removing the friction between what you mean and what people hear — so your team can act on it. This manual is built around real phrase swaps, not theory.</p>
+  </div>
+</header>
+
+<section id="foundations">
+  <div class="wrap">
+    <div class="num">01</div>
+    <h2>Four foundations</h2>
+    <p class="lead">Before the specific phrases, these are the habits everything else is built on.</p>
+
+    <div class="principle">
+      <h3>Say the thing first</h3>
+      <p>Lead with the point, then the reasoning. Most people do the reverse — they build up context and land the conclusion last. That reads as uncertain, even when the thinking is sound. State the decision or ask, then explain.</p>
+    </div>
+    <div class="principle">
+      <h3>Cut the hedge, keep the humility</h3>
+      <p>"I think maybe we should possibly consider" isn't humble — it's unclear. Real humility sounds like "here's my read, tell me what I'm missing," not a sentence full of soft exits.</p>
+    </div>
+    <div class="principle">
+      <h3>Let silence do work</h3>
+      <p>A pause after a hard statement isn't a gap to fill — it's the moment the room absorbs what you said. Rushing to soften or explain after a clear statement undercuts it.</p>
+    </div>
+    <div class="principle">
+      <h3>Own outcomes in first person</h3>
+      <p>"We're behind because the team didn't align" distances you from the result. "I didn't get us aligned in time" is harder to say and far more credible — and it's usually just as true.</p>
+    </div>
+  </div>
+</section>
+
+<section id="framing">
+  <div class="wrap">
+    <div class="num">02</div>
+    <h2>Framing: statements over questions</h2>
+    <p class="lead">Asking "what do you all think?" before you've said anything hands the room your job. Offer a position, then invite challenge to it.</p>
+
+    <div class="swap">
+      <div class="cell weak">
+        <div class="tag">DIFFUSE</div>
+        <p>"What does everyone think we should do about the launch date?"</p>
+      </div>
+      <div class="cell strong">
+        <div class="tag">DIRECT</div>
+        <p>"I want to push the launch two weeks. Here's why — and I want to hear where this breaks."</p>
+      </div>
+    </div>
+
+    <div class="swap">
+      <div class="cell weak">
+        <div class="tag">DIFFUSE</div>
+        <p>"I was just wondering if maybe we could look at the budget again?"</p>
+      </div>
+      <div class="cell strong">
+        <div class="tag">DIRECT</div>
+        <p>"The budget needs revisiting before Friday. Can we get 30 minutes today?"</p>
+      </div>
+    </div>
+
+    <div class="swap">
+      <div class="cell weak">
+        <div class="tag">DIFFUSE</div>
+        <p>"This might be a bad idea, but what if we tried a different vendor?"</p>
+      </div>
+      <div class="cell strong">
+        <div class="tag">DIRECT</div>
+        <p>"I think we should switch vendors. Here's the trade-off I'm weighing."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="feedback">
+  <div class="wrap">
+    <div class="num">03</div>
+    <h2>Feedback that lands</h2>
+    <p class="lead">Vague feedback protects your comfort, not theirs. Use a fixed structure: what happened, what it affected, what you want next. Skip the sandwich — it trains people to distrust your praise.</p>
+
+    <div class="scenario">
+      <h3>Correcting a missed deadline</h3>
+      <div class="swap">
+        <div class="cell weak">
+          <div class="tag">VAGUE</div>
+          <p>"Just a heads up, the report was a little late — no big deal, just try to keep an eye on timing going forward!"</p>
+        </div>
+        <div class="cell strong">
+          <div class="tag">STRUCTURED</div>
+          <p>"The report came in two days late, which pushed the client call back. I need it by end of day Thursday going forward — what got in the way this time?"</p>
+        </div>
+      </div>
+      <p class="why">The structured version names the fact, the impact, and the change — then opens the floor. It's not harsher, it's clearer, which is what actually respects the person.</p>
+    </div>
+
+    <div class="scenario">
+      <h3>Giving credit</h3>
+      <div class="swap">
+        <div class="cell weak">
+          <div class="tag">VAGUE</div>
+          <p>"Great job on the deck, everyone!"</p>
+        </div>
+        <div class="cell strong">
+          <div class="tag">STRUCTURED</div>
+          <p>"Priya's framing in slide 4 is why the client stopped pushing back on price. That's the moment that changed the room."</p>
+        </div>
+      </div>
+      <p class="why">Specific praise is remembered and repeated. Generic praise is forgotten by lunch.</p>
+    </div>
+
+    <details class="drill">
+      <summary>Drill: the three-part structure <span class="plus">+</span></summary>
+      <div class="body">
+        <p><strong>Situation</strong> — name what happened, concretely, without adjectives ("late" not "sloppy").<br>
+        <strong>Impact</strong> — what it affected, in real terms (a client, a deadline, a teammate's workload).<br>
+        <strong>Forward</strong> — the specific change you want, or the question that gets you there.</p>
+        <p>Practice: write one piece of feedback you've been avoiding, using only these three parts. No qualifiers, no "but overall you're doing great" unless it's true and separate from this point.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section id="decisions">
+  <div class="wrap">
+    <div class="num">04</div>
+    <h2>Announcing decisions</h2>
+    <p class="lead">A decision announcement has a shape: the call, the reasoning, what happens next, and where input still matters. Missing any piece reads as either arbitrary or wishy-washy.</p>
+
+    <div class="scenario">
+      <h3>Reversing a prior decision</h3>
+      <div class="swap">
+        <div class="cell weak">
+          <div class="tag">EVASIVE</div>
+          <p>"So, um, some things have changed and we're kind of going a different way now, sorry for the confusion."</p>
+        </div>
+        <div class="cell strong">
+          <div class="tag">OWNED</div>
+          <p>"I'm changing course from what I said last week. The new data on churn changed my read. Here's the new plan, and here's what stays the same."</p>
+        </div>
+      </div>
+      <p class="why">Naming the reversal directly costs less credibility than people fear. Burying it costs more — people notice the shift either way.</p>
+    </div>
+
+    <div class="scenario">
+      <h3>Closing a debate to move forward</h3>
+      <div class="swap">
+        <div class="cell weak">
+          <div class="tag">EVASIVE</div>
+          <p>"I guess we've talked about this a lot, so maybe let's just go with option B for now?"</p>
+        </div>
+        <div class="cell strong">
+          <div class="tag">OWNED</div>
+          <p>"We've heard both sides. We're going with option B. I know that's not everyone's first choice — here's the reasoning, and here's how we'll know if it's wrong."</p>
+        </div>
+      </div>
+    </div>
+
+    <details class="drill">
+      <summary>Drill: the four-part decision <span class="plus">+</span></summary>
+      <div class="body">
+        <p><strong>The call</strong> — stated in one sentence, no hedge.<br>
+        <strong>The reasoning</strong> — the one or two factors that actually drove it, not a full audit trail.<br>
+        <strong>What happens next</strong> — concrete, dated if possible.<br>
+        <strong>Where input still counts</strong> — be honest about what's fixed and what's still open. Fake openness erodes trust fast.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section id="pressure">
+  <div class="wrap">
+    <div class="num">05</div>
+    <h2>Under pressure</h2>
+    <p class="lead">Pressure is where filler words and hedges multiply. The fix isn't performing calm — it's having a shorter sentence ready.</p>
+
+    <div class="swap">
+      <div class="cell weak">
+        <div class="tag">UNDER PRESSURE</div>
+        <p>"Um, so, I mean, there's a lot going on, and honestly I'm not 100% sure yet, but we're kind of looking into it, I think?"</p>
+      </div>
+      <div class="cell strong">
+        <div class="tag">GROUNDED</div>
+        <p>"I don't have the full picture yet. Here's what I know, here's what I'm finding out, and I'll update you by 4pm."</p>
+      </div>
+    </div>
+
+    <div class="swap">
+      <div class="cell weak">
+        <div class="tag">UNDER PRESSURE</div>
+        <p>"I'm so sorry, I really should have caught this, I feel terrible, this is totally on me, I'm so sorry again—"</p>
+      </div>
+      <div class="cell strong">
+        <div class="tag">GROUNDED</div>
+        <p>"I missed this. Here's the fix, and here's what I'm changing so it doesn't happen again."</p>
+      </div>
+    </div>
+
+    <p class="why" style="margin-top:20px;">One clean acknowledgment beats three anxious ones. Repeated apologizing shifts the room's attention to managing your discomfort instead of solving the problem.</p>
+  </div>
+</section>
+
+<section id="phrasebook">
+  <div class="wrap">
+    <div class="num">06</div>
+    <h2>Quick-reference phrasebook</h2>
+    <p class="lead">Common leadership moments, swapped word for word.</p>
+
+    <table class="phrases">
+      <tr><th>Instead of</th><th>Say</th></tr>
+      <tr><td class="out">"I just wanted to check if maybe..."</td><td class="in">"I want to check on..."</td></tr>
+      <tr><td class="out">"Sorry to bother you, but..."</td><td class="in">"Quick question:"</td></tr>
+      <tr><td class="out">"Does that make sense?"</td><td class="in">"What questions do you have?"</td></tr>
+      <tr><td class="out">"I could be wrong, but..."</td><td class="in">"Here's my read —"</td></tr>
+      <tr><td class="out">"We should probably think about maybe doing X"</td><td class="in">"We're doing X"</td></tr>
+      <tr><td class="out">"This is just my opinion, but..."</td><td class="in">"I recommend..."</td></tr>
+      <tr><td class="out">"I hate to say this, but..."</td><td class="in">"I need to flag something."</td></tr>
+      <tr><td class="out">"Let's circle back at some point"</td><td class="in">"Let's revisit this Thursday"</td></tr>
+      <tr><td class="out">"No worries if not, but could you..."</td><td class="in">"Could you have this by [date]?"</td></tr>
+      <tr><td class="out">"I'll try to get to it"</td><td class="in">"I'll have it by [time]"</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="practice">
+  <div class="wrap">
+    <div class="num">07</div>
+    <h2>Before your next meeting</h2>
+    <p class="lead">A short pre-check. Click each item as you build the habit — this list resets when you close the page, so use it as a rehearsal, not a record.</p>
+
+    <div class="checklist" id="checklist">
+      <div class="check-item"><div class="box"></div><div class="txt">I know the one sentence I need to land, and I can say it without a lead-in.</div></div>
+      <div class="check-item"><div class="box"></div><div class="txt">I've cut "just," "maybe," and "I think" from my opening line.</div></div>
+      <div class="check-item"><div class="box"></div><div class="txt">If I'm giving feedback, I have the situation, impact, and forward step ready.</div></div>
+      <div class="check-item"><div class="box"></div><div class="txt">If I'm announcing a decision, I know what's fixed and what's still open for input.</div></div>
+      <div class="check-item"><div class="box"></div><div class="txt">I've planned where I'll pause instead of filling silence.</div></div>
+      <div class="check-item"><div class="box"></div><div class="txt">If something went wrong, I've written one clean sentence owning it — not three anxious ones.</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>None of this is about volume or authority theater. The through-line is clarity: say the real thing, in the fewest words that still respect the listener's intelligence. The habit builds with repetition, not with a single good meeting.</p>
+    <div class="mark">END OF MANUAL</div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.check-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      item.classList.toggle('done');
+    });
+  });
+</script>
+
+</body>
+</html>

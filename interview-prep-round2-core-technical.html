@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Round 2 — Core Technical Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12151A;
+    --panel:#1A1E25;
+    --panel2:#20252D;
+    --paper:#E7E9ED;
+    --paper-dim:#8B93A1;
+    --blue:#6E93D6;
+    --blue-dim:#3E5484;
+    --amber:#E0A458;
+    --amber-dim:#8A6636;
+    --green:#6FAE8C;
+    --green-dim:#3E6B52;
+    --hair:#262B33;
+    --code-bg:#0E1116;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--paper);
+    font-family:'IBM Plex Sans', sans-serif; font-size:16px; line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Space Grotesk', sans-serif; font-weight:600; line-height:1.25; margin:0 0 0.5em 0; color:var(--paper);}
+  .wrap{max-width:780px; margin:0 auto; padding:0 28px;}
+  code{font-family:'IBM Plex Mono', monospace;}
+
+  nav.jump{
+    position:sticky; top:0; z-index:50;
+    background:rgba(18,21,26,0.94); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--hair);
+  }
+  nav.jump .wrap{display:flex; gap:8px; overflow-x:auto; padding:14px 28px; scrollbar-width:none;}
+  nav.jump .wrap::-webkit-scrollbar{display:none;}
+  nav.jump a{
+    color:var(--paper-dim); text-decoration:none;
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    white-space:nowrap; border:1px solid var(--hair); border-radius:20px; padding:5px 12px;
+  }
+  nav.jump a:hover{color:var(--blue); border-color:var(--blue-dim);}
+
+  header.hero{padding:72px 0 48px 0; border-bottom:1px solid var(--hair);}
+  header.hero .kicker{font-family:'IBM Plex Mono', monospace; color:var(--green); font-size:12.5px; letter-spacing:0.03em; margin-bottom:16px;}
+  header.hero h1{font-size:clamp(1.9rem, 5vw, 2.6rem); max-width:20ch;}
+  header.hero p.sub{color:var(--paper-dim); max-width:58ch; margin-top:16px; font-size:1.02rem;}
+  .profile{
+    margin-top:26px; padding:16px 20px;
+    background:var(--panel); border:1px solid var(--hair); border-radius:6px;
+    font-size:0.92rem; color:var(--paper-dim);
+  }
+  .profile strong{color:var(--paper);}
+
+  .qa{padding:44px 0; border-bottom:1px solid var(--hair);}
+  .qa:last-of-type{border-bottom:none;}
+  .qa .meta{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
+  .qa .qnum{font-family:'IBM Plex Mono', monospace; color:var(--amber); font-size:13px;}
+  .qa .tagpill{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.03em;
+    padding:3px 9px; border-radius:20px; border:1px solid var(--blue-dim); color:var(--blue);
+  }
+  .qa h2{font-size:1.2rem; max-width:40ch;}
+  .qa .answer{margin-top:16px; color:var(--paper-dim); font-size:0.98rem;}
+  .qa .answer p{margin:0 0 12px 0;}
+  .qa .answer p:last-child{margin-bottom:0;}
+  .qa .answer strong{color:var(--paper);}
+  .qa .answer ul{margin:0 0 12px 0; padding-left:20px;}
+  .qa .answer li{margin-bottom:6px;}
+
+  pre{
+    background:var(--code-bg); border:1px solid var(--hair); border-radius:6px;
+    padding:14px 16px; overflow-x:auto; margin:14px 0;
+  }
+  pre code{color:#B9C4D6; font-size:0.85rem; line-height:1.55;}
+
+  .tip{
+    margin-top:14px; padding:12px 16px;
+    border-left:2px solid var(--green-dim);
+    background:rgba(111,174,140,0.06);
+    font-size:0.88rem; color:var(--paper-dim);
+  }
+  .tip strong{color:var(--green);}
+
+  footer{padding:48px 0 90px 0;}
+  footer p{color:var(--paper-dim); font-size:0.9rem; max-width:56ch;}
+  footer .mark{font-family:'IBM Plex Mono', monospace; color:var(--blue-dim); font-size:12px; margin-top:24px;}
+</style>
+</head>
+<body>
+
+<nav class="jump">
+  <div class="wrap">
+    <a href="#q1">Q1</a><a href="#q2">Q2</a><a href="#q3">Q3</a><a href="#q4">Q4</a><a href="#q5">Q5</a>
+    <a href="#q6">Q6</a><a href="#q7">Q7</a><a href="#q8">Q8</a><a href="#q9">Q9</a><a href="#q10">Q10</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">ROUND 2 — CORE TECHNICAL</div>
+    <h1>Core technical interview — 1 hour prep</h1>
+    <p class="sub">Deeper than the first round: Java fundamentals, concurrency, Spring internals, database transactions, microservices resilience, React performance, and a light system design question. Expect follow-ups that probe "why," not just "what."</p>
+    <div class="profile">
+      <strong>How to use this in the hour before:</strong> skim once for structure, then re-read only the code snippets — interviewers in core rounds often ask you to trace through code or spot what's missing, so being able to reproduce these patterns from memory matters more than reciting the prose.
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="qa" id="q1">
+    <div class="meta"><span class="qnum">Q1</span><span class="tagpill">JAVA CORE</span></div>
+    <h2>Explain SOLID principles with a real example from your work.</h2>
+    <div class="answer">
+      <p>SOLID is five design principles that keep object-oriented code maintainable as it grows:</p>
+      <ul>
+        <li><strong>S</strong> — Single Responsibility: a class should have one reason to change. E.g. an <code>OrderService</code> shouldn't also handle sending emails — that belongs in a <code>NotificationService</code>.</li>
+        <li><strong>O</strong> — Open/Closed: classes should be open for extension, closed for modification. E.g. adding a new payment type should mean adding a new class implementing a <code>PaymentStrategy</code> interface, not editing a big switch statement in existing code.</li>
+        <li><strong>L</strong> — Liskov Substitution: a subclass should be usable anywhere its parent type is expected without breaking behavior.</li>
+        <li><strong>I</strong> — Interface Segregation: prefer several small, specific interfaces over one large one, so classes don't implement methods they don't need.</li>
+        <li><strong>D</strong> — Dependency Inversion: depend on abstractions, not concrete implementations — which is exactly what Spring's dependency injection encourages by default.</li>
+      </ul>
+      <p><strong>Real example:</strong> on a project with multiple payment providers, I refactored a growing if/else block choosing payment logic into a <code>PaymentStrategy</code> interface with one implementation per provider, injected via Spring. Adding a new provider later meant adding one new class — zero changes to existing, tested code. That's Open/Closed and Dependency Inversion working together.</p>
+    </div>
+  </div>
+
+  <div class="qa" id="q2">
+    <div class="meta"><span class="qnum">Q2</span><span class="tagpill">JAVA 8+</span></div>
+    <h2>What Java 8+ features do you use regularly, and why?</h2>
+    <div class="answer">
+      <p><strong>Streams</strong> — for declarative collection processing instead of manual loops:</p>
+      <pre><code>List&lt;String&gt; activeEmails = users.stream()
+    .filter(User::isActive)
+    .map(User::getEmail)
+    .collect(Collectors.toList());</code></pre>
+      <p><strong>Optional</strong> — to make "this might not have a value" explicit in method signatures, instead of relying on null checks scattered through calling code:</p>
+      <pre><code>public Optional&lt;User&gt; findById(String id) {
+    return userRepository.findById(id);
+}
+// caller:
+userRepository.findById(id)
+    .map(User::getEmail)
+    .orElseThrow(() -&gt; new UserNotFoundException(id));</code></pre>
+      <p><strong>Lambdas and method references</strong> — mainly for concise functional interfaces (<code>Comparator</code>, <code>Runnable</code>, custom <code>@FunctionalInterface</code> types) and stream operations, as shown above.</p>
+      <p><strong>var</strong> (Java 10, but relevant here) — for local type inference where the type is obvious from the right-hand side, improving readability without sacrificing type safety.</p>
+      <div class="tip"><strong>Common follow-up:</strong> "What's the risk of overusing streams?" — readability drops fast with deeply chained or nested streams, and debugging a stream pipeline is harder than stepping through a loop. I keep pipelines to 3–4 operations before breaking them into named intermediate variables or methods.</div>
+    </div>
+  </div>
+
+  <div class="qa" id="q3">
+    <div class="meta"><span class="qnum">Q3</span><span class="tagpill">COLLECTIONS</span></div>
+    <h2>How does HashMap work internally? What's different in a ConcurrentHashMap?</h2>
+    <div class="answer">
+      <p><strong>HashMap</strong> stores entries in an array of buckets. A key's <code>hashCode()</code> is run through an internal hash function to pick a bucket index; entries in the same bucket (hash collisions) are stored as a linked list. Since Java 8, if a single bucket's linked list grows beyond a threshold (8 entries, with the table large enough), it's converted into a red-black tree, turning worst-case lookup from O(n) to O(log n) for that bucket. Resizing happens when the map's size exceeds <code>capacity × loadFactor</code> (default 0.75) — the table doubles and all entries are rehashed.</p>
+      <p>HashMap is <strong>not thread-safe</strong> — concurrent modification can corrupt the bucket structure (historically even caused infinite loops during resize under concurrent writes).</p>
+      <p><strong>ConcurrentHashMap</strong> solves this without locking the whole map. Instead of one lock for the entire structure (like the older, now-discouraged <code>Hashtable</code>), it uses fine-grained locking at the bucket/node level (in modern versions, via CAS operations and synchronized blocks only on the specific bin being modified). This means multiple threads can read and write to different parts of the map concurrently with minimal contention, while reads are largely lock-free.</p>
+      <div class="tip"><strong>Common follow-up:</strong> "When would you still need external synchronization with ConcurrentHashMap?" — for compound operations that need to be atomic together, e.g. "check if absent, then insert" across multiple map calls; use <code>computeIfAbsent</code> or <code>merge</code> instead, since those are atomic single operations.</div>
+    </div>
+  </div>
+
+  <div class="qa" id="q4">
+    <div class="meta"><span class="qnum">Q4</span><span class="tagpill">CONCURRENCY</span></div>
+    <h2>Explain synchronized vs. Lock vs. using a concurrent collection for thread safety.</h2>
+    <div class="answer">
+      <p><strong>synchronized</strong> — the simplest option; a built-in monitor lock on an object or method. Simple to use, automatically released even if an exception is thrown, but inflexible — no timeout, no ability to check "is this locked," and one thread waiting can't be interrupted.</p>
+      <pre><code>public synchronized void deduct(BigDecimal amount) {
+    if (balance.compareTo(amount) &gt;= 0) {
+        balance = balance.subtract(amount);
+    }
+}</code></pre>
+      <p><strong>ReentrantLock</strong> (from <code>java.util.concurrent.locks</code>) — more flexible: supports <code>tryLock()</code> with a timeout, interruptible locking, and fairness policies. Requires manual unlocking in a <code>finally</code> block, which is more error-prone if forgotten.</p>
+      <pre><code>private final ReentrantLock lock = new ReentrantLock();
+
+public void deduct(BigDecimal amount) {
+    lock.lock();
+    try {
+        if (balance.compareTo(amount) &gt;= 0) {
+            balance = balance.subtract(amount);
+        }
+    } finally {
+        lock.unlock();
+    }
+}</code></pre>
+      <p><strong>Concurrent collections</strong> (ConcurrentHashMap, CopyOnWriteArrayList, BlockingQueue) — the preferred choice when the problem is really "safe shared collection access," since they handle synchronization internally and are heavily optimized, usually outperforming a hand-rolled synchronized wrapper.</p>
+      <p><strong>My default:</strong> reach for a concurrent collection or the <code>java.util.concurrent</code> utilities (Atomic classes, ExecutorService) first; drop to <code>synchronized</code> for simple cases; use <code>ReentrantLock</code> only when I specifically need its extra capabilities like tryLock or interruptibility.</p>
+    </div>
+  </div>
+
+  <div class="qa" id="q5">
+    <div class="meta"><span class="qnum">Q5</span><span class="tagpill">SPRING INTERNALS</span></div>
+    <h2>Explain the Spring Bean lifecycle and the difference between singleton and prototype scope.</h2>
+    <div class="answer">
+      <p><strong>Lifecycle (simplified):</strong> Spring instantiates the bean → injects dependencies → calls <code>@PostConstruct</code> (or <code>InitializingBean.afterPropertiesSet()</code>) → the bean is ready for use → on container shutdown, calls <code>@PreDestroy</code> (or <code>DisposableBean.destroy()</code>) for cleanup, for singleton-scoped beans.</p>
+      <pre><code>@Component
+public class CacheWarmer {
+    @PostConstruct
+    public void init() {
+        // pre-load cache after dependencies are injected
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        // release resources on shutdown
+    }
+}</code></pre>
+      <p><strong>Singleton</strong> (Spring's default) — one instance per Spring container, shared across the entire application. Efficient, but means the bean must be stateless or thread-safe, since concurrent requests share the same instance.</p>
+      <p><strong>Prototype</strong> — a new instance is created every time the bean is requested from the container. Useful for beans that hold request-specific mutable state, but Spring does not manage the full lifecycle for prototype beans — <code>@PreDestroy</code> is not called automatically; cleanup is the caller's responsibility.</p>
+      <div class="tip"><strong>Common follow-up:</strong> "What happens if you inject a prototype bean into a singleton?" — by default, the prototype bean is only created once, at injection time, and then reused like a singleton within that parent bean — which usually isn't what people expect. The fix is either method injection or injecting an <code>ObjectFactory</code>/<code>Provider</code> to fetch a fresh instance on each use.</div>
+    </div>
+  </div>
+
+  <div class="qa" id="q6">
+    <div class="meta"><span class="qnum">Q6</span><span class="tagpill">TRANSACTIONS</span></div>
+    <h2>How does @Transactional work, and what does propagation mean?</h2>
+    <div class="answer">
+      <p><code>@Transactional</code> wraps a method call in a database transaction using Spring's AOP proxying — when you call an annotated method, you're actually calling a proxy that starts a transaction, invokes your method, then commits on success or rolls back on a runtime exception (checked exceptions don't trigger rollback by default).</p>
+      <pre><code>@Transactional
+public void placeOrder(Order order) {
+    orderRepository.save(order);
+    inventoryService.reserveStock(order); // same transaction
+}</code></pre>
+      <p><strong>Propagation</strong> controls how a transactional method behaves when called from within another transactional method:</p>
+      <ul>
+        <li><code>REQUIRED</code> (default) — join the existing transaction if one exists, or start a new one.</li>
+        <li><code>REQUIRES_NEW</code> — always start a new, independent transaction, suspending the current one. Useful for logging or audit writes that should persist even if the outer transaction rolls back.</li>
+        <li><code>NESTED</code> — starts a nested transaction (via savepoints) that can roll back independently without rolling back the outer transaction.</li>
+      </ul>
+      <div class="tip"><strong>Common gotcha to mention proactively:</strong> <code>@Transactional</code> doesn't work when called from within the same class (self-invocation bypasses the proxy), and it only rolls back on unchecked exceptions by default — checked exceptions need <code>rollbackFor = Exception.class</code> explicitly.</div>
+    </div>
+  </div>
+
+  <div class="qa" id="q7">
+    <div class="meta"><span class="qnum">Q7</span><span class="tagpill">DATABASE / JPA</span></div>
+    <h2>What is the N+1 query problem, and how do you fix it in JPA/Hibernate?</h2>
+    <div class="answer">
+      <p>The N+1 problem happens when fetching a list of N parent entities triggers one query for the list, then N additional queries — one per parent — to lazily load each parent's related child entities. For example, fetching 50 orders and then accessing <code>order.getItems()</code> on each one, with lazy loading, results in 1 + 50 = 51 queries instead of 2.</p>
+      <pre><code>// Triggers N+1: one query for orders, then one per order for items
+List&lt;Order&gt; orders = orderRepository.findAll();
+orders.forEach(o -&gt; o.getItems().size()); // lazy load fires here, per order</code></pre>
+      <p><strong>Fixes:</strong></p>
+      <ul>
+        <li><strong>JOIN FETCH</strong> in JPQL — pulls related entities in the same query: <code>SELECT o FROM Order o JOIN FETCH o.items</code>.</li>
+        <li><strong>@EntityGraph</strong> — declaratively specify which associations to eagerly fetch for a specific query, without changing the entity's default fetch type globally.</li>
+        <li><strong>Batch fetching</strong> — <code>@BatchSize</code> or Hibernate's <code>hibernate.default_batch_fetch_size</code>, which groups the "N" lazy-load queries into a smaller number of <code>IN (...)</code> queries instead of one-per-parent.</li>
+      </ul>
+      <p>In practice, I catch these during development by enabling SQL logging (<code>show-sql</code> plus a tool like p6spy or Hibernate statistics) and watching for repeated near-identical queries in a loop — that's the tell-tale sign of N+1.</p>
+    </div>
+  </div>
+
+  <div class="qa" id="q8">
+    <div class="meta"><span class="qnum">Q8</span><span class="tagpill">MICROSERVICES RESILIENCE</span></div>
+    <h2>How do you make microservices resilient to downstream failures? Explain the circuit breaker pattern.</h2>
+    <div class="answer">
+      <p>When Service A calls Service B synchronously and B is slow or down, without protection, A's threads pile up waiting on B — which can exhaust A's own thread pool and cause A to fail too, cascading the outage. Resilience patterns exist to contain that.</p>
+      <p><strong>Circuit breaker</strong> (implemented with Resilience4j in modern Spring Boot, after Hystrix's deprecation) wraps calls to a downstream service and tracks failure rate. It has three states:</p>
+      <ul>
+        <li><strong>Closed</strong> — calls pass through normally; failures are counted.</li>
+        <li><strong>Open</strong> — once failures exceed a threshold, the circuit "trips": further calls fail immediately (or return a fallback) without even attempting the network call, giving the downstream service room to recover.</li>
+        <li><strong>Half-Open</strong> — after a wait period, a limited number of trial calls are allowed through; if they succeed, the circuit closes again, otherwise it reopens.</li>
+      </ul>
+      <pre><code>@CircuitBreaker(name = "inventoryService", fallbackMethod = "fallbackStock")
+public StockDto checkStock(String productId) {
+    return inventoryClient.getStock(productId);
+}
+
+public StockDto fallbackStock(String productId, Throwable t) {
+    return StockDto.unavailable(productId); // graceful degradation
+}</code></pre>
+      <p>I'd usually pair this with a <strong>timeout</strong> (so a single slow call doesn't hang indefinitely) and a <strong>retry with backoff</strong> for transient failures — but retries need care in combination with circuit breakers, since retrying too aggressively can itself overwhelm a struggling downstream service.</p>
+    </div>
+  </div>
+
+  <div class="qa" id="q9">
+    <div class="meta"><span class="qnum">Q9</span><span class="tagpill">REACT PERFORMANCE</span></div>
+    <h2>Explain React's reconciliation process and how you'd optimize unnecessary re-renders.</h2>
+    <div class="answer">
+      <p>React keeps a virtual DOM — a lightweight in-memory representation of the UI tree. When state changes, React re-renders the component (calls the function again) to produce a new virtual DOM tree, then <strong>diffs</strong> it against the previous tree to figure out the minimal set of real DOM changes needed, rather than re-rendering the whole page. This diffing process is what's called reconciliation.</p>
+      <p>A component re-renders when its own state changes, its props change, or its parent re-renders — and by default, a parent re-rendering re-renders all its children too, even if their props didn't actually change. That's the usual source of unnecessary re-renders in larger component trees.</p>
+      <p><strong>Optimization tools:</strong></p>
+      <ul>
+        <li><code>React.memo</code> — wraps a component so it only re-renders if its props actually changed (shallow comparison).</li>
+        <li><code>useMemo</code> — memoizes an expensive computed value so it's only recalculated when its dependencies change.</li>
+        <li><code>useCallback</code> — memoizes a function reference itself, which matters because passing a new inline function as a prop on every render defeats <code>React.memo</code> on the child receiving it.</li>
+      </ul>
+      <pre><code>const ExpensiveList = React.memo(function ExpensiveList({ items, onSelect }) {
+  return items.map(item =&gt; &lt;Row key={item.id} item={item} onSelect={onSelect} /&gt;);
+});
+
+function Parent({ items }) {
+  const handleSelect = useCallback((id) =&gt; { /* ... */ }, []);
+  return &lt;ExpensiveList items={items} onSelect={handleSelect} /&gt;;
+}</code></pre>
+      <div class="tip"><strong>Common follow-up:</strong> "Should you wrap everything in memo/useMemo/useCallback?" — no; each adds its own small overhead and complexity. I reach for these only after profiling (React DevTools Profiler) shows a genuine re-render cost, not as a default habit.</div>
+    </div>
+  </div>
+
+  <div class="qa" id="q10">
+    <div class="meta"><span class="qnum">Q10</span><span class="tagpill">SYSTEM DESIGN (LIGHT)</span></div>
+    <h2>Walk me through designing a URL shortener at a high level.</h2>
+    <div class="answer">
+      <p><strong>Core requirements:</strong> given a long URL, return a short unique code; given that code, redirect to the original URL. At scale, reads (redirects) vastly outnumber writes (new short URLs).</p>
+      <p><strong>API shape:</strong></p>
+      <pre><code>POST /api/urls        { "longUrl": "https://..." } -&gt; { "shortCode": "aZ9k2" }
+GET  /{shortCode}     -&gt; 302 redirect to the original long URL</code></pre>
+      <p><strong>Generating the short code:</strong> two common approaches —</p>
+      <ul>
+        <li><strong>Base62 encoding of an auto-incrementing ID</strong> — simple, guaranteed unique, but reveals creation order and requires a centralized ID generator (or a distributed ID scheme like Snowflake if sharded).</li>
+        <li><strong>Hash the long URL</strong> (e.g. MD5) and take the first 6-7 characters — no central counter needed, but requires collision handling (check if the code's already taken; if so, append a salt and rehash).</li>
+      </ul>
+      <p><strong>Storage:</strong> a key-value store (short code → long URL) is a natural fit — Redis or DynamoDB for very high read throughput, or a relational DB with a heavy caching layer in front if the team already runs one. Given reads dominate, I'd put a cache (Redis) in front of whatever persistent store is used, since the same popular short links get hit repeatedly.</p>
+      <p><strong>Scaling considerations I'd raise:</strong></p>
+      <ul>
+        <li>Read-heavy traffic → cache aggressively, and consider a CDN or edge redirect layer for very high-traffic links.</li>
+        <li>ID generation must not become a bottleneck or single point of failure — a distributed ID generator, or hash-based generation, avoids a single counter.</li>
+        <li>Analytics (click counts) shouldn't block the redirect path — log asynchronously (e.g. publish an event) rather than writing synchronously on every redirect request.</li>
+      </ul>
+      <div class="tip"><strong>How I'd open this in an interview:</strong> clarify scale (how many URLs/redirects per day) and whether custom aliases or expiry are needed before diving into a design — that framing signals structured thinking, which usually matters more than the specific answer.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>In a core technical round, interviewers often care less about a perfect answer and more about how you reason when they push back — so after each answer here, mentally rehearse one likely follow-up question and how you'd handle not immediately knowing the answer.</p>
+    <div class="mark">END OF DOCUMENT — ROUND 2</div>
+  </div>
+</footer>
+
+</body>
+</html>

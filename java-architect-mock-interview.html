@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Architect — 30-Minute Mock Interview Script</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+  :root{
+    --blue-deep:#0b2542;
+    --blue-mid:#123a63;
+    --blue-card:#0e2f54;
+    --line:#9fc9e8;
+    --line-dim:#5c86a8;
+    --ink:#eaf2f9;
+    --ink-dim:#b9cde0;
+    --redline:#ff7a45;
+    --redline-dim:#c95a30;
+    --grid:rgba(159,201,232,0.08);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 28px 28px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 28px 28px,
+      var(--blue-deep);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.6;
+  }
+  ::selection{background:var(--redline);color:#0b2542;}
+
+  .sheet-header{
+    border-bottom:2px solid var(--line-dim);
+    padding:20px 24px 0;
+  }
+  .titleblock{
+    max-width:1000px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:20px;
+    align-items:end;
+    padding-bottom:18px;
+  }
+  .titleblock h1{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:25px;
+    letter-spacing:.5px;
+    margin:0 0 6px;
+    text-transform:uppercase;
+  }
+  .titleblock .subtitle{color:var(--line);font-size:14px;max-width:600px;}
+  .meta-grid{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--ink-dim);
+    border:1px solid var(--line-dim);
+    display:grid;
+    grid-template-columns:repeat(2, auto);
+    min-width:260px;
+  }
+  .meta-grid div{padding:6px 10px;border-bottom:1px solid var(--line-dim);border-right:1px solid var(--line-dim);}
+  .meta-grid div:nth-child(even){border-right:none;}
+  .meta-grid .k{color:var(--line);text-transform:uppercase;letter-spacing:.5px;font-size:9.5px;}
+  .meta-grid .v{color:var(--ink);}
+
+  main{max-width:1000px;margin:0 auto;padding:36px 24px 80px;}
+
+  /* Timeline strip */
+  .timeline{
+    display:flex;
+    border:1px solid var(--line-dim);
+    margin-bottom:40px;
+    overflow-x:auto;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+  }
+  .timeline a{
+    flex:1;
+    min-width:110px;
+    text-align:center;
+    padding:10px 6px;
+    color:var(--ink-dim);
+    text-decoration:none;
+    border-right:1px solid var(--line-dim);
+    white-space:nowrap;
+  }
+  .timeline a:last-child{border-right:none;}
+  .timeline a:hover{background:var(--blue-mid);color:var(--line);}
+  .timeline a .t{display:block;color:var(--redline);font-weight:700;margin-bottom:2px;}
+
+  .segment{margin-bottom:48px;scroll-margin-top:20px;}
+  .segment-label{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
+  .segment-label .clock{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--blue-deep);
+    background:var(--line);
+    padding:4px 10px;
+    font-weight:700;
+    letter-spacing:.5px;
+    white-space:nowrap;
+  }
+  .segment-label h2{
+    font-family:'JetBrains Mono', monospace;
+    font-size:17px;
+    margin:0;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+  }
+  .segment-label::after{content:"";flex:1;height:1px;background:var(--line-dim);}
+  .segment-goal{
+    font-size:13px;
+    color:var(--ink-dim);
+    margin:0 0 18px;
+    font-style:italic;
+  }
+
+  .exchange{
+    border:1px solid var(--line-dim);
+    background:var(--blue-card);
+    margin-bottom:14px;
+  }
+  .exchange-head{
+    padding:8px 16px;
+    background:var(--blue-mid);
+    border-bottom:1px dashed var(--line-dim);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--line);
+    letter-spacing:.4px;
+  }
+  .exchange-body{padding:14px 18px 16px;}
+  .line{display:grid;grid-template-columns:120px 1fr;gap:12px;margin-bottom:12px;align-items:start;}
+  .line:last-child{margin-bottom:0;}
+  .speaker{font-family:'JetBrains Mono', monospace;font-size:11px;font-weight:700;letter-spacing:.4px;padding-top:2px;}
+  .speaker.q{color:var(--line);}
+  .speaker.a{color:var(--redline);}
+  .line p{margin:0;font-size:13.5px;}
+  .line ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;}
+  .line li{margin-bottom:4px;}
+  .bracket{color:var(--redline);font-weight:600;}
+  code{background:rgba(159,201,232,0.1);color:var(--line);padding:1px 5px;font-family:'JetBrains Mono', monospace;font-size:12.5px;}
+
+  .coach-note{
+    border-left:3px solid var(--redline);
+    background:rgba(255,122,69,0.07);
+    padding:8px 14px;
+    margin-top:10px;
+    font-size:12.5px;
+    color:var(--ink-dim);
+  }
+  .coach-note strong{color:var(--redline);}
+
+  .print-note{
+    margin-top:60px;
+    border-top:1px solid var(--line-dim);
+    padding-top:18px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--line-dim);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  @media (max-width:640px){
+    .titleblock{grid-template-columns:1fr;}
+    .meta-grid{min-width:0;}
+    .line{grid-template-columns:1fr;gap:4px;}
+    .speaker{padding-top:0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet-header">
+  <div class="titleblock">
+    <div>
+      <h1>Java Architect — Mock Interview</h1>
+      <div class="subtitle">A full 30-minute call script, timed segment by segment, with model answers you edit to fit your own background.</div>
+    </div>
+    <div class="meta-grid">
+      <div><div class="k">Duration</div><div class="v">30 min</div></div>
+      <div><div class="k">Role</div><div class="v">Java Architect</div></div>
+      <div><div class="k">Format</div><div class="v">Video / phone</div></div>
+      <div><div class="k">Rev</div><div class="v">Editable</div></div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <p style="color:var(--ink-dim);font-size:13.5px;margin-bottom:24px;">Everything in <span class="bracket">orange</span> is a placeholder — swap in your real companies, systems, and numbers. This is a template for how the conversation flows and how much detail to give at each stage, not a script to recite word-for-word.</p>
+
+  <div class="timeline">
+    <a href="#s1"><span class="t">0–2 min</span>Intro &amp; rapport</a>
+    <a href="#s2"><span class="t">2–8 min</span>Tell me about yourself</a>
+    <a href="#s3"><span class="t">8–16 min</span>Technical / architecture depth</a>
+    <a href="#s4"><span class="t">16–23 min</span>System design scenario</a>
+    <a href="#s5"><span class="t">23–27 min</span>Behavioral / leadership</a>
+    <a href="#s6"><span class="t">27–30 min</span>Your questions &amp; wrap-up</a>
+  </div>
+
+  <!-- SEGMENT 1 -->
+  <section class="segment" id="s1">
+    <div class="segment-label"><span class="clock">0:00–2:00</span><h2>Intro &amp; Rapport</h2></div>
+    <p class="segment-goal">Goal: settle nerves, confirm logistics, set tone.</p>
+
+    <div class="exchange">
+      <div class="exchange-head">OPENING</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>Thanks for making time today. I'm <span class="bracket">[name]</span>, <span class="bracket">[title]</span> here at <span class="bracket">[company]</span>. This will be about 30 minutes — I'll ask about your background, dig into some technical and architecture topics, run through a short design scenario, and leave time at the end for your questions. Sound good?</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>Sounds great, looking forward to it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEGMENT 2 -->
+  <section class="segment" id="s2">
+    <div class="segment-label"><span class="clock">2:00–8:00</span><h2>Tell Me About Yourself</h2></div>
+    <p class="segment-goal">Goal: a tight 90-second arc — trajectory, current depth, why this role. Not a resume readout.</p>
+
+    <div class="exchange">
+      <div class="exchange-head">Q1</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>So, tell me a bit about yourself and your background.</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>Sure — I'm a software engineer with <span class="bracket">[10+]</span> years in the Java ecosystem, and over the last <span class="bracket">[3-4]</span> years I've moved from building services to owning architecture decisions across teams. I started out doing <span class="bracket">[early career focus, e.g. backend feature work on a monolith]</span> at <span class="bracket">[company]</span>, then spent several years at <span class="bracket">[company]</span> where I led the move from <span class="bracket">[monolith]</span> to a Spring Boot microservices architecture — that's where I got deep into distributed systems problems: service boundaries, eventual consistency, resilience patterns. Most recently at <span class="bracket">[company]</span>, I've been the architect for <span class="bracket">[system/domain]</span>, working with <span class="bracket">[Kafka / Kubernetes / cloud provider]</span> at <span class="bracket">[scale — e.g. requests/day or data volume]</span>. What drew me to this role is <span class="bracket">[specific reason tied to their stack/mission]</span>.</p></div>
+        <div class="coach-note"><strong>Timing check:</strong> aim for 60–90 seconds. If you're still talking at 2 minutes, you're giving a resume, not a pitch — cut the early-career detail and spend more words on your most recent architecture work.</div>
+      </div>
+    </div>
+
+    <div class="exchange">
+      <div class="exchange-head">Q2 — FOLLOW-UP</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>Nice, and what does "architect" actually mean day-to-day in your current role?</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>Day-to-day it's a mix of three things: reviewing and shaping design proposals across <span class="bracket">[N]</span> teams, staying hands-on enough to write proof-of-concept code for the riskiest parts of a design, and being the person who translates technical trade-offs into terms product and leadership can actually decide on.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEGMENT 3 -->
+  <section class="segment" id="s3">
+    <div class="segment-label"><span class="clock">8:00–16:00</span><h2>Technical / Architecture Depth</h2></div>
+    <p class="segment-goal">Goal: prove hands-on Java depth, not just buzzwords. Be ready to go one level deeper on anything you say.</p>
+
+    <div class="exchange">
+      <div class="exchange-head">Q3 — JVM / PERFORMANCE</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>Tell me about a time you had to diagnose a JVM performance issue in production.</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>We had <span class="bracket">[symptom — e.g. periodic latency spikes / OOM errors]</span> on <span class="bracket">[service]</span>. I pulled heap dumps and GC logs and found <span class="bracket">[root cause — e.g. long G1GC pauses from an oversized young generation, or a memory leak from an unbounded cache]</span>. I fixed it by <span class="bracket">[specific fix — tuning <code>-Xmn</code>/<code>-XX:MaxGCPauseMillis</code>, switching collectors, adding eviction policy]</span>, which brought p99 latency down from <span class="bracket">[X ms]</span> to <span class="bracket">[Y ms]</span>.</p></div>
+        <div class="coach-note"><strong>Depth check:</strong> be ready for a follow-up like "why G1 over ZGC/Shenandoah?" — have a real opinion, not just the name of the collector you used.</div>
+      </div>
+    </div>
+
+    <div class="exchange">
+      <div class="exchange-head">Q4 — SPRING / DESIGN PATTERNS</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>How do you think about dependency injection and Spring's role in keeping a large codebase maintainable?</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>DI is really about inverting control so components depend on abstractions, not concrete implementations — which is what makes large Spring codebases testable at scale. In practice, on <span class="bracket">[project]</span>, we enforced constructor injection over field injection everywhere, used interface-based beans so we could swap implementations per environment, and kept configuration externalized via <code>@ConfigurationProperties</code> rather than scattered <code>@Value</code> annotations. The bigger architectural point is that DI alone doesn't prevent a tangled dependency graph — we still had to actively manage module boundaries with <span class="bracket">[e.g. Spring Modulith / separate Maven modules]</span> to stop services from silently coupling.</p></div>
+      </div>
+    </div>
+
+    <div class="exchange">
+      <div class="exchange-head">Q5 — DISTRIBUTED SYSTEMS</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>How do you handle data consistency across microservices?</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>Depends on the boundary. For workflows that need strict consistency, I keep them inside a single service/transaction rather than splitting them. For cross-service workflows, we use <span class="bracket">[saga pattern with Kafka / orchestration vs choreography]</span> — for example on <span class="bracket">[project]</span>, an order-fulfillment flow spanned <span class="bracket">[N]</span> services, so we used an orchestrated saga with compensating transactions for rollback, and idempotency keys on each step so retries were safe. The trade-off is you accept eventual consistency and have to design the UI/business process around that.</p></div>
+      </div>
+    </div>
+
+    <div class="exchange">
+      <div class="exchange-head">Q6 — RAPID FIRE</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>Quick ones — circuit breaker vs. retry, when do you reach for each? And REST vs. gRPC for internal service calls?</p></div>
+        <div class="line a"><div class="speaker a">YOU</div>
+        <ul>
+          <li><strong>Retry</strong> for transient failures you expect to self-resolve quickly; <strong>circuit breaker</strong> (e.g. Resilience4j) to stop hammering a failing downstream and let it recover — I use both together, retry inside the breaker's closed state.</li>
+          <li><strong>REST</strong> when the consumer is external, human-debuggable, or polyglot clients matter. <strong>gRPC</strong> internally when we need lower latency and strict contracts via protobuf — we moved <span class="bracket">[specific internal path]</span> to gRPC and cut serialization overhead noticeably.</li>
+        </ul>
+        </div>
+        <div class="coach-note"><strong>Timing check:</strong> keep rapid-fire answers under 20 seconds each — this segment tests reflexes, not essays.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEGMENT 4 -->
+  <section class="segment" id="s4">
+    <div class="segment-label"><span class="clock">16:00–23:00</span><h2>System Design Scenario</h2></div>
+    <p class="segment-goal">Goal: state assumptions out loud, structure the design, and defend trade-offs when pushed.</p>
+
+    <div class="exchange">
+      <div class="exchange-head">DESIGN PROMPT</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>Let's do a quick design exercise. Design a notification service that needs to send emails, SMS, and push notifications, at high volume, with retries and delivery tracking. How would you approach it?</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>Before I sketch anything — a couple of assumptions: I'll assume peak volume around <span class="bracket">[X notifications/sec]</span>, that delivery ordering doesn't strictly matter, and that we need at-least-once delivery with dedup on the client side. Tell me if that's off.</p><p>At a high level: an API layer accepts notification requests and publishes them to a Kafka topic partitioned by <span class="bracket">[tenant/user ID]</span>. Separate consumer groups per channel — email, SMS, push — each with their own worker pool, so a slowdown in one channel (say, an SMS provider outage) doesn't back up the others. Each worker calls the relevant provider, writes delivery status to a status store, and on failure pushes to a dead-letter topic with exponential backoff retry. For tracking, I'd expose a delivery-status API backed by that status store, and emit metrics per channel for observability.</p></div>
+      </div>
+    </div>
+
+    <div class="exchange">
+      <div class="exchange-head">FOLLOW-UP PUSHBACK</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>Why Kafka instead of a simpler queue like SQS or RabbitMQ?</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>Fair question — for pure task queuing, SQS or RabbitMQ would honestly be simpler and I wouldn't rule them out. I'd lean Kafka specifically because we also want a durable, replayable log — if a provider integration has a bug and we need to reprocess a day's worth of notifications, Kafka's retention makes that straightforward, whereas a traditional queue discards messages once consumed. If replay wasn't a requirement, I'd probably default to something lighter-weight.</p></div>
+        <div class="coach-note"><strong>Why this matters:</strong> notice the answer doesn't defend Kafka dogmatically — it states the real reason and concedes the alternative would work too. That's the "committed but not defensive" tone architects are evaluated on.</div>
+      </div>
+    </div>
+
+    <div class="exchange">
+      <div class="exchange-head">FOLLOW-UP SCALE</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>What happens if one downstream provider (say, the SMS vendor) starts rate-limiting you hard?</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>That's exactly why the consumer groups are split per channel — the SMS consumer pool backs up on its own topic, doesn't affect email or push. I'd add a circuit breaker around the SMS provider client so once we see a threshold of 429s, we stop hammering it and let messages queue in Kafka rather than burning through retries. We'd also want an alert on consumer lag for that topic so on-call knows it's happening, not just silently degrading.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEGMENT 5 -->
+  <section class="segment" id="s5">
+    <div class="segment-label"><span class="clock">23:00–27:00</span><h2>Behavioral / Leadership</h2></div>
+    <p class="segment-goal">Goal: show you can influence, disagree productively, and own outcomes — not just write code.</p>
+
+    <div class="exchange">
+      <div class="exchange-head">Q7</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>Tell me about a time you disagreed with another engineer or team on a technical decision.</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>On <span class="bracket">[project]</span>, a team wanted to introduce <span class="bracket">[technology/approach]</span> and I was concerned about <span class="bracket">[specific risk]</span>. Rather than just pushing back in the meeting, I asked what problem they were actually trying to solve, then proposed we prototype both approaches against <span class="bracket">[specific criteria]</span> for a week. The data showed <span class="bracket">[outcome]</span>, and we went with <span class="bracket">[decision]</span> — which the other team was fine with because it came from evidence, not me overruling them.</p></div>
+      </div>
+    </div>
+
+    <div class="exchange">
+      <div class="exchange-head">Q8</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>How do you approach mentoring engineers who aren't as senior as you?</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>I try to ask questions that lead them to the answer rather than just handing over a design. For example, with <span class="bracket">[engineer/example]</span>, instead of rewriting their approach, I asked what would happen under <span class="bracket">[failure scenario]</span> — they found the gap themselves, which stuck a lot better than if I'd just told them.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEGMENT 6 -->
+  <section class="segment" id="s6">
+    <div class="segment-label"><span class="clock">27:00–30:00</span><h2>Your Questions &amp; Wrap-Up</h2></div>
+    <p class="segment-goal">Goal: ask questions that show architect-level thinking, not just "what's the culture like."</p>
+
+    <div class="exchange">
+      <div class="exchange-head">CLOSING</div>
+      <div class="exchange-body">
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>That's all my questions — what do you have for me?</p></div>
+        <div class="line a"><div class="speaker a">YOU</div>
+        <ul>
+          <li>What's the biggest architectural trade-off the team is currently navigating with <span class="bracket">[relevant system]</span>?</li>
+          <li>How is the architect role split between hands-on coding and cross-team design work here?</li>
+          <li>What does the review process look like when a team wants to introduce a new pattern or technology?</li>
+        </ul>
+        </div>
+        <div class="line q"><div class="speaker q">INTERVIEWER</div><p>Great questions. [answers] — thanks again for your time, we'll follow up with next steps by <span class="bracket">[timeframe]</span>.</p></div>
+        <div class="line a"><div class="speaker a">YOU</div><p>Thanks, I really enjoyed the conversation — looking forward to hearing from you.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="print-note">
+    <span>JAVA ARCHITECT — 30-MIN MOCK INTERVIEW — REV: EDITABLE</span>
+    <span>ALL BRACKETED CONTENT IS A PLACEHOLDER — REPLACE BEFORE USE</span>
+  </div>
+
+</main>
+
+</body>
+</html>
